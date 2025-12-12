@@ -27,3 +27,5 @@ node_modules/
 # Database
 *.db
 *.sqlite
+
+*.code-workspace
