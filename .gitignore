@@ -1,0 +1,29 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.venv
+
+# Dataset dosyaları (çok büyük, GitHub'a yüklemeyeceğiz)
+the-movies-dataset/
+*.csv
+*.gz
+
+# IDE
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+
+# Node modules
+node_modules/
+
+# Database
+*.db
+*.sqlite
