@@ -29,3 +29,8 @@ node_modules/
 *.sqlite
 
 *.code-workspace
+.vs/
+bin/
+obj/
+*.user
+*.suo
