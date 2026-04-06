@@ -53,6 +53,112 @@ namespace FilmDiary.API.Controllers
 
             return Ok(films);
         }
+        [HttpGet("by-actor")]
+        public async Task<IActionResult> GetFilmsByActor(string actorName)
+        {
+            var films = await _context.FilmActors
+                .Where(fa => fa.Actor.Name.Contains(actorName))
+                .Select(fa => fa.Film)
+                .Distinct()
+                .ToListAsync();
+
+            return Ok(films);
+        }
+        [HttpGet("by-two-actors")]
+        public async Task<IActionResult> GetFilmsByTwoActors(string actor1, string actor2)
+        {
+            var actor1FilmIds = await _context.FilmActors
+                .Where(fa => fa.Actor.Name.Contains(actor1))
+                .Select(fa => fa.FilmId)
+                .ToListAsync();
+
+            var actor2FilmIds = await _context.FilmActors
+                .Where(fa => fa.Actor.Name.Contains(actor2))
+                .Select(fa => fa.FilmId)
+                .ToListAsync();
+
+            var commonFilmIds = actor1FilmIds.Intersect(actor2FilmIds).ToList();
+
+            var films = await _context.Films
+                .Where(f => commonFilmIds.Contains(f.Id))
+                .ToListAsync();
+
+            return Ok(films);
+        }
+        [HttpGet("{id}/actors")]
+        public async Task<IActionResult> GetActorsByFilm(int id)
+        {
+            var actors = await _context.FilmActors
+                .Where(fa => fa.FilmId == id)
+                .Select(fa => new
+                {
+                    fa.ActorId,
+                    fa.Actor.Name
+                })
+                .ToListAsync();
+
+            return Ok(actors);
+        }
+        [HttpGet("advanced-search")]
+        public async Task<IActionResult> AdvancedSearch(
+            string? actor1,
+            string? actor2,
+            string? genre,
+            decimal? minRating,
+            bool? isFavorite,
+            string? status)
+        {
+            var query = _context.Films
+                .Include(f => f.FilmActors)
+                .ThenInclude(fa => fa.Actor)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(actor1))
+            {
+                query = query.Where(f => f.FilmActors.Any(fa => fa.Actor.Name.Contains(actor1)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(actor2))
+            {
+                query = query.Where(f => f.FilmActors.Any(fa => fa.Actor.Name.Contains(actor2)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(genre))
+            {
+                query = query.Where(f => f.Genre.Contains(genre));
+            }
+
+            if (minRating.HasValue)
+            {
+                query = query.Where(f => f.ImdbRating >= minRating.Value);
+            }
+
+            if (isFavorite.HasValue)
+            {
+                query = query.Where(f => f.IsFavorite == isFavorite.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(f => f.Status == status);
+            }
+
+            var films = await query
+                .Select(f => new
+                {
+                    f.Id,
+                    f.Title,
+                    f.Overview,
+                    f.Genre,
+                    f.ImdbRating,
+                    f.Status,
+                    f.IsFavorite,
+                    Actors = f.FilmActors.Select(fa => fa.Actor.Name).ToList()
+                })
+                .ToListAsync();
+
+            return Ok(films);
+        }
         [HttpPost]
         public async Task<IActionResult> AddFilm(CreateFilmDto dto)
         {
@@ -98,6 +204,35 @@ namespace FilmDiary.API.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("Film favorilerden çıkarıldı.");
+        }
+        [HttpPost("{filmId}/actors/{actorId}")]
+        public async Task<IActionResult> AddActorToFilm(int filmId, int actorId)
+        {
+            var film = await _context.Films.FindAsync(filmId);
+            var actor = await _context.Actors.FindAsync(actorId);
+
+            if (film == null)
+                return NotFound("Film bulunamadı.");
+
+            if (actor == null)
+                return NotFound("Oyuncu bulunamadı.");
+
+            var exists = await _context.FilmActors
+                .AnyAsync(fa => fa.FilmId == filmId && fa.ActorId == actorId);
+
+            if (exists)
+                return BadRequest("Bu oyuncu zaten bu filme eklenmiş.");
+
+            var filmActor = new FilmActor
+            {
+                FilmId = filmId,
+                ActorId = actorId
+            };
+
+            _context.FilmActors.Add(filmActor);
+            await _context.SaveChangesAsync();
+
+            return Ok("Oyuncu filme eklendi.");
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateFilm(int id, UpdateFilmDto dto)

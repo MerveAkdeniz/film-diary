@@ -10,5 +10,7 @@
         public string Status { get; set; } = string.Empty;
         // Watched, Watching, Watchlist
         public bool IsFavorite { get; set; } = false;
+        public List<FilmActor> FilmActors { get; set; } = new();
+        public List<Comment> Comments { get; set; } = new();
     }
 }
