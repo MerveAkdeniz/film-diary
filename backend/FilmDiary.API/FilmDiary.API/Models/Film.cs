@@ -9,5 +9,6 @@
         public decimal ImdbRating { get; set; }
         public string Status { get; set; } = string.Empty;
         // Watched, Watching, Watchlist
+        public bool IsFavorite { get; set; } = false;
     }
 }

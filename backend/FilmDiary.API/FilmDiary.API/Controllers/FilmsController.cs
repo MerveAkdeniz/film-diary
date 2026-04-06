@@ -23,7 +23,36 @@ namespace FilmDiary.API.Controllers
             var films = await _context.Films.ToListAsync();
             return Ok(films);
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFilmById(int id)
+        {
+            var film = await _context.Films.FindAsync(id);
 
+            if (film == null)
+            {
+                return NotFound("Film bulunamadı.");
+            }
+
+            return Ok(film);
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchFilms(string title)
+        {
+            var films = await _context.Films
+                .Where(f => f.Title.Contains(title))
+                .ToListAsync();
+
+            return Ok(films);
+        }
+        [HttpGet("favorites")]
+        public async Task<IActionResult> GetFavorites()
+        {
+            var films = await _context.Films
+                .Where(f => f.IsFavorite)
+                .ToListAsync();
+
+            return Ok(films);
+        }
         [HttpPost]
         public async Task<IActionResult> AddFilm(CreateFilmDto dto)
         {
@@ -43,6 +72,32 @@ namespace FilmDiary.API.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(film);
+        }
+        [HttpPost("{id}/favorite")]
+        public async Task<IActionResult> AddToFavorite(int id)
+        {
+            var film = await _context.Films.FindAsync(id);
+
+            if (film == null)
+                return NotFound("Film bulunamadı.");
+
+            film.IsFavorite = true;
+            await _context.SaveChangesAsync();
+
+            return Ok("Film favorilere eklendi.");
+        }
+        [HttpPost("{id}/unfavorite")]
+        public async Task<IActionResult> RemoveFromFavorite(int id)
+        {
+            var film = await _context.Films.FindAsync(id);
+
+            if (film == null)
+                return NotFound("Film bulunamadı.");
+
+            film.IsFavorite = false;
+            await _context.SaveChangesAsync();
+
+            return Ok("Film favorilerden çıkarıldı.");
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateFilm(int id, UpdateFilmDto dto)
