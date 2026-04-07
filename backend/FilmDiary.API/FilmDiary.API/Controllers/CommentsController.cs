@@ -1,5 +1,7 @@
 ﻿using FilmDiary.API.Data;
+using FilmDiary.API.DTOs;
 using FilmDiary.API.Models;
+using FilmDiary.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,38 +11,46 @@ namespace FilmDiary.API.Controllers
     [Route("api/[controller]")]
     public class CommentsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ICommentService _commentService;
 
-        public CommentsController(AppDbContext context)
+        public CommentsController(ICommentService commentService)
         {
-            _context = context;
+            _commentService = commentService;
         }
 
         [HttpGet("film/{filmId}")]
         public async Task<IActionResult> GetCommentsByFilm(int filmId)
         {
-            var comments = await _context.Comments
-                .Where(c => c.FilmId == filmId)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
+            var comments = await _commentService.GetCommentsByFilmAsync(filmId);
+            return Ok(comments);
+        }
 
+        [HttpGet("film/{filmId}/non-spoiler")]
+        public async Task<IActionResult> GetNonSpoilerComments(int filmId)
+        {
+            var comments = await _commentService.GetNonSpoilerCommentsAsync(filmId);
+            return Ok(comments);
+        }
+
+        [HttpGet("film/{filmId}/spoiler")]
+        public async Task<IActionResult> GetSpoilerComments(int filmId)
+        {
+            var comments = await _commentService.GetSpoilerCommentsAsync(filmId);
             return Ok(comments);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddComment(Comment comment)
+        public async Task<IActionResult> AddComment(CreateCommentDto dto)
         {
-            var filmExists = await _context.Films.AnyAsync(f => f.Id == comment.FilmId);
-
-            if (!filmExists)
-                return NotFound("Film bulunamadı.");
-
-            comment.CreatedAt = DateTime.UtcNow;
-
-            _context.Comments.Add(comment);
-            await _context.SaveChangesAsync();
-
-            return Ok(comment);
+            try
+            {
+                var comment = await _commentService.AddCommentAsync(dto);
+                return Ok(comment);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

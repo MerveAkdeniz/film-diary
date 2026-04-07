@@ -4,17 +4,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FilmDiary.API.DTOs;
+using FilmDiary.API.Services;
+
 namespace FilmDiary.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class FilmsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IRecommendationService _recommendationService;
 
-        public FilmsController(AppDbContext context)
+        public FilmsController(AppDbContext context, IRecommendationService recommendationService)
         {
             _context = context;
+            _recommendationService = recommendationService;
         }
 
         [HttpGet]
@@ -158,6 +162,12 @@ namespace FilmDiary.API.Controllers
                 .ToListAsync();
 
             return Ok(films);
+        }
+        [HttpGet("recommendations")]
+        public async Task<IActionResult> GetRecommendations(int count = 10)
+        {
+            var recommendations = await _recommendationService.GetRecommendationsAsync(count);
+            return Ok(recommendations);
         }
         [HttpPost]
         public async Task<IActionResult> AddFilm(CreateFilmDto dto)
