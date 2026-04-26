@@ -169,6 +169,35 @@ namespace FilmDiary.API.Controllers
             var recommendations = await _recommendationService.GetRecommendationsAsync(count);
             return Ok(recommendations);
         }
+        [HttpGet("{id}/detail")]
+        public async Task<IActionResult> GetFilmDetail(int id)
+        {
+            var film = await _context.Films
+                .Include(f => f.FilmActors)
+                    .ThenInclude(fa => fa.Actor)
+                .Include(f => f.Comments)
+                .FirstOrDefaultAsync(f => f.Id == id);
+
+            if (film == null)
+                return NotFound("Film bulunamadı.");
+
+            var dto = new FilmDetailDto
+            {
+                Id = film.Id,
+                Title = film.Title,
+                Overview = film.Overview,
+                Genre = film.Genre,
+                ImdbRating = film.ImdbRating,
+                Status = film.Status,
+                IsFavorite = film.IsFavorite,
+                Actors = film.FilmActors.Select(fa => fa.Actor.Name).ToList(),
+                TotalComments = film.Comments.Count,
+                SpoilerComments = film.Comments.Count(c => c.IsSpoiler),
+                NonSpoilerComments = film.Comments.Count(c => !c.IsSpoiler)
+            };
+
+            return Ok(dto);
+        }
         [HttpPost]
         public async Task<IActionResult> AddFilm(CreateFilmDto dto)
         {

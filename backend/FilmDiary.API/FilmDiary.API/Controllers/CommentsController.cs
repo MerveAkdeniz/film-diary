@@ -42,6 +42,9 @@ namespace FilmDiary.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddComment(CreateCommentDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
                 var comment = await _commentService.AddCommentAsync(dto);

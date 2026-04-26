@@ -1,9 +1,9 @@
-﻿using FilmDiary.API.Models;
+﻿using FilmDiary.API.DTOs;
 
 namespace FilmDiary.API.Services
 {
     public interface IRecommendationService
     {
-        Task<List<Film>> GetRecommendationsAsync(int count = 10);
+        Task<List<RecommendationResponseDto>> GetRecommendationsAsync(int count = 10);
     }
 }

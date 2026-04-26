@@ -1,64 +1,123 @@
 # 🎬 Film Diary API
 
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-blue.svg)
-![Entity Framework Core](https://img.shields.io/badge/EF_Core-green)
-![SQL Server](https://img.shields.io/badge/SQL_Server-red)
-![Swagger](https://img.shields.io/badge/Swagger-85EA2D)
+![ASP.NET Core Web API](https://img.shields.io/badge/ASP.NET_Core-blueviolet?style=for-the-badge&logo=dotnet)
+![Entity Framework Core](https://img.shields.io/badge/Entity_Framework_Core-green?style=for-the-badge&logo=nuget)
+![SQL Server](https://img.shields.io/badge/SQL_Server-red?style=for-the-badge&logo=microsoft-sql-server)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger)
 
-ASP.NET Core Web API ile geliştirilmiş kapsamlı ve profesyonel bir film takip/koleksiyon yönetimi uygulamasıdır. Kullanıcıların film verilerini yönetmelerini (CRUD) sağlarken, aynı zamanda CSV dosyaları üzerinden geniş veri setlerini sisteme toplu olarak entegre etme yeteneğine sahiptir.
+> A robust movie discovery backend system providing advanced filtering, actor-based recommendations, and spoiler-free community engagement.
 
-## 🌟 Özellikler
+## 🚀 The Problem
 
-- **RESTful API Tasarımı:** Standartlara uygun, anlaşılır ve esnek endpoint mimarisi.
-- **Kapsamlı CRUD İşlemleri:** Filmleri ekleme, okuma, güncelleme ve silme imkanı.
-- **Toplu Veri İçe Aktarımı (CSV Import):** `CsvHelper` kütüphanesi kullanılarak dış veri kaynaklarından (CSV) hızlı ve güvenilir veri aktarımı.
-- **DTO (Data Transfer Object) ve Validasyon:** Veri güvenliğini sağlamak ve istemci-sunucu arasındaki iletişimi optimize etmek için DTO kullanımı ve katı veri doğrulama kuralları.
-- **Canlı API Dokümantasyonu:** Swagger entegrasyonu ile anlık olarak test edilebilir ve okunabilir API belgeleri.
+Movie lovers often struggle to decide what to watch next due to overwhelming options, fragmented data, and a lack of structured filtering capabilities on many existing platforms.
 
-## 🚀 Kullanılan Teknolojiler
+## 💡 The Solution
 
-- **Backend Çatısı:** ASP.NET Core Web API
-- **ORM / Veri Erişimi:** Entity Framework Core
-- **Veritabanı:** SQL Server
-- **Veri İşleme:** CsvHelper (CSV okuma/yazma operasyonları için)
-- **Dokümantasyon:** Swagger / OpenAPI
+Film Diary API is a comprehensive backend service engineered to solve these problems. It empowers users to:
+* **Discover movies** intuitively through deep metadata like actors and genres.
+* **Filter content** efficiently using multiple complex parameters simultaneously.
+* **Engage with the community** safely without the fear of spoilers, thanks to built-in spoiler detection parsing.
+* **Receive personalized recommendations** driven by their unique viewing habits and favorite genres.
 
-## 🛠️ Kurulum ve Çalıştırma Adımları
+---
 
-Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları sırasıyla uygulayabilirsiniz:
+## 🌟 Core Features & Technical Highlights
 
-### Ön Koşullar
-- [.NET SDK](https://dotnet.microsoft.com/download) (Uyumlu sürüm)
-- SQL Server (LocalDB veya tam sürüm)
+### 🎭 Actor-Based Discovery
+Moving beyond standard title and genre searches, the API allows users to:
+* Fetch the entire filmography of a specific actor.
+* **Intersection Search**: Find specific movies where **two selected actors appear together**.
 
-### Kurulum
+### 🔍 Advanced Search & Filtering
+A highly flexible search endpoint designed to handle complex queries:
+* Filter by genre, rating, release status, or user favorites.
+* Combine multiple query parameters dynamically in a single API request for granular results.
 
-1. **Projeyi Klonlayın:**
+### ⭐ Favorite System
+* Users can define their curated lists by marking or unmarking favorite movies.
+* Favorites act as the foundational dataset for the recommendation engine ecosystem.
+
+### 💬 Intelligent Comment System
+* Add structured comments to movies.
+* **Automatic Spoiler Management**: The system segregates comments into spoiler / non-spoiler categories, protecting the user experience during content browsing.
+
+### 🧠 Recommendation Engine
+* Delivers dynamic movie suggestions based on the user's aggregated favorite genres.
+* **Explainable AI approach**: Provides transparency on *why* a specific movie is being recommended.
+
+### 📦 Bulk Data Processing (CSV)
+* Efficiently seeds and imports large movie datasets through a robust CSV import pipeline utilizing the `CsvHelper` library.
+
+---
+
+## ⚙️ Tech Stack & Architecture
+
+Built with modern backend development best practices, ensuring scalability, maintainability, and top-tier performance.
+
+* **Framework**: ASP.NET Core Web API
+* **ORM & Database**: Entity Framework Core (Code-First Approach), Microsoft SQL Server
+* **Data Parsing**: `CsvHelper` for bulk data ingestion and processing
+* **Documentation**: Swagger / OpenAPI integration for interactive API testing
+* **Architecture Principles**: DTO (Data Transfer Object) implementations, strict validation rules, and RESTful design principles.
+
+---
+
+## 📌 Example Endpoints Overview
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET`  | `/api/Films/advanced-search` | Multi-parameter search and filtering |
+| `GET`  | `/api/Films/by-two-actors` | Identifies common films for a given pair of actors |
+| `GET`  | `/api/Films/recommendations`| Retrieves tailored movie suggestions |
+| `GET`  | `/api/Comments/film/{id}`   | Fetches spoiler-managed comments for a specific movie |
+| `POST` | `/api/Films/import`         | Bulk processes movie data from CSV records |
+
+---
+
+## 🛠️ Local Setup & Installation
+
+Follow these steps to run the project locally on your machine:
+
+### Prerequisites
+* [.NET SDK](https://dotnet.microsoft.com/download) (Compatible version)
+* SQL Server (LocalDB or full instance)
+
+### Installation Guide
+
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/kullanici-adiniz/film-diary-api.git
-   cd film-diary-api
+   git clone https://github.com/MerveAkdeniz/film-diary.git
+   cd film-diary
    ```
 
-2. **Bağlantı Dizesini (Connection String) Ayarlayın:**
-   `appsettings.json` dosyası içerisindeki `DefaultConnection` değerini, kendi yerel SQL Server veritabanı bilgilerinize göre güncelleyin.
+2. **Configure the Database:**
+   Navigate to the backend project and update the `DefaultConnection` string in `appsettings.Development.json` to point to your local SQL Server instance.
 
-3. **Veritabanını Oluşturun (Migration):**
-   Terminal veya komut satırında proje dizinindeyken aşağıdaki komutu çalıştırarak Entity Framework üzerinden tabloları oluşturun:
+3. **Apply EF Core Migrations:**
+   From your terminal within the API project directory, run:
    ```bash
    dotnet ef database update
    ```
 
-4. **Projeyi Başlatın:**
+4. **Launch the Application:**
    ```bash
    dotnet run
    ```
 
-5. **API'yi Test Edin (Swagger):**
-   Proje çalıştıktan sonra, ekranda beliren adrese (örneğin `https://localhost:5001/swagger`) tarayıcınızdan giderek tüm API metotlarını listeleyebilir ve test edebilirsiniz.
-
-## 💡 CSV İmport İşlemi Hakkında İpucu
-
-Toplu film eklemek için kullanacağınız dataset içerisindeki sütun başlıklarının, API tarafında beklenen DTO yapısıyla eşleştiğinden emin olun. Örnek bir CSV yapısı ve API endpoint detayları için Swagger ara yüzündeki dökümantasyonu inceleyebilirsiniz.
+5. **Explore the API:**
+   Navigate to `https://localhost:<port>/swagger` in your browser to access the Swagger UI and test the endpoints interactively.
 
 ---
-Merve AKDENİZ
+
+## 🎯 Impact & Business Value
+
+This system significantly enhances the content discovery lifecycle. By combining **actor-based tracking**, **tailored algorithmic recommendations**, and **moderated community feedback**, it creates a highly engaging and personalized platform infrastructure, ready for integration with any modern front-end framework.
+
+---
+
+## 📡 Project Status
+
+**Backend feature-complete (v1)**. The API is thoroughly tested via Swagger and fully ready for frontend UI consumption.
+
+---
+*Developed by [Merve AKDENİZ](https://github.com/MerveAkdeniz)*
