@@ -1,9 +1,12 @@
 using FilmDiary.API.Data;
 using Microsoft.EntityFrameworkCore;
 using FilmDiary.API.Services;
+using FilmDiary.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 // Add services to the container.
 builder.Services.AddScoped<MovieImportService>();
 builder.Services.AddControllers();
@@ -29,6 +32,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
 

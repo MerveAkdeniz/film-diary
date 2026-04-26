@@ -32,6 +32,11 @@ namespace FilmDiary.API.Data
                 .HasOne(c => c.Film)
                 .WithMany(f => f.Comments)
                 .HasForeignKey(c => c.FilmId);
+
+            modelBuilder.Entity<Film>()
+                .Property(f => f.ImdbRating)
+                .HasPrecision(3, 1);
+
         }
     }
 }

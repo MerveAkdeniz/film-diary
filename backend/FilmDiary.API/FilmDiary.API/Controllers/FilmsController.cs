@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FilmDiary.API.DTOs;
 using FilmDiary.API.Services;
+using Microsoft.Extensions.Logging;
 
 namespace FilmDiary.API.Controllers
 {
@@ -14,18 +15,33 @@ namespace FilmDiary.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IRecommendationService _recommendationService;
+        private readonly ILogger<FilmsController> _logger;
 
-        public FilmsController(AppDbContext context, IRecommendationService recommendationService)
+        public FilmsController(AppDbContext context, IRecommendationService recommendationService, ILogger<FilmsController> logger)
         {
             _context = context;
             _recommendationService = recommendationService;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFilms()
+        public async Task<IActionResult> GetFilms(int page = 1, int pageSize = 10)
         {
-            var films = await _context.Films.ToListAsync();
-            return Ok(films);
+            var totalCount = await _context.Films.CountAsync();
+
+            var films = await _context.Films
+                .OrderByDescending(f => f.ImdbRating)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                Data = films
+            });
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFilmById(int id)
@@ -166,7 +182,10 @@ namespace FilmDiary.API.Controllers
         [HttpGet("recommendations")]
         public async Task<IActionResult> GetRecommendations(int count = 10)
         {
+            _logger.LogInformation("Recommendations endpoint çağrıldı");
+
             var recommendations = await _recommendationService.GetRecommendationsAsync(count);
+
             return Ok(recommendations);
         }
         [HttpGet("{id}/detail")]
