@@ -13,6 +13,8 @@ namespace FilmDiary.API.Data
         public DbSet<Actor> Actors { get; set; }
         public DbSet<FilmActor> FilmActors { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<User> Users { get; set; } 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<FilmActor>()
