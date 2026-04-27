@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using FilmDiary.API.DTOs;
 using FilmDiary.API.Services;
 using Microsoft.Extensions.Logging;
-using FilmDiary.API.Common; 
+using FilmDiary.API.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FilmDiary.API.Controllers
 {
@@ -244,6 +245,8 @@ namespace FilmDiary.API.Controllers
 
             return Ok(ApiResponse<object>.SuccessResponse(film,"Film başarıyla eklendi."));
         }
+
+        [Authorize]
         [HttpPost("{id}/favorite")]
         public async Task<IActionResult> AddToFavorite(int id)
         {
