@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://0.0.0.0:10000"); 
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
