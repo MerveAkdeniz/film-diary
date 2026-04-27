@@ -1,9 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-COPY . ./
+# SADECE PROJEYÝ KOPYALA
+COPY backend/FilmDiary.API/FilmDiary.API/FilmDiary.API.csproj ./ 
 RUN dotnet restore
-RUN dotnet publish -c Release -o out
+
+# TÜM DOSYALARI KOPYALA
+COPY backend/FilmDiary.API/FilmDiary.API/. ./
+RUN dotnet publish -c Release -o /app/out
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
