@@ -19,7 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 var app = builder.Build();
-
+app.UseMiddleware<ExceptionMiddleware>(); 
 
 
 // Configure the HTTP request pipeline.

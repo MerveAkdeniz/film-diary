@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using FilmDiary.API.DTOs;
 using FilmDiary.API.Services;
 using Microsoft.Extensions.Logging;
+using FilmDiary.API.Common; 
 
 namespace FilmDiary.API.Controllers
 {
@@ -50,10 +51,13 @@ namespace FilmDiary.API.Controllers
 
             if (film == null)
             {
-                return NotFound("Film bulunamadı.");
+                return NotFound(ApiResponse<object>.ErrorResponse("Film bulunamadı."));
             }
 
-            return Ok(film);
+            return Ok(ApiResponse<object>.SuccessResponse(
+                film,
+                "Film başarıyla getirildi."
+            ));
         }
         [HttpGet("search")]
         public async Task<IActionResult> SearchFilms(string title)
@@ -186,7 +190,10 @@ namespace FilmDiary.API.Controllers
 
             var recommendations = await _recommendationService.GetRecommendationsAsync(count);
 
-            return Ok(recommendations);
+            return Ok(ApiResponse<object>.SuccessResponse(
+                recommendations,
+                "Film önerileri başarıyla getirildi."
+            ));
         }
         [HttpGet("{id}/detail")]
         public async Task<IActionResult> GetFilmDetail(int id)
@@ -198,7 +205,7 @@ namespace FilmDiary.API.Controllers
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (film == null)
-                return NotFound("Film bulunamadı.");
+                return NotFound(ApiResponse<object>.ErrorResponse("Film bulunamadı."));
 
             var dto = new FilmDetailDto
             {
@@ -215,7 +222,7 @@ namespace FilmDiary.API.Controllers
                 NonSpoilerComments = film.Comments.Count(c => !c.IsSpoiler)
             };
 
-            return Ok(dto);
+            return Ok(ApiResponse<object>.SuccessResponse(dto,"Film detayı başarıyla getirildi."));
         }
         [HttpPost]
         public async Task<IActionResult> AddFilm(CreateFilmDto dto)
@@ -235,7 +242,7 @@ namespace FilmDiary.API.Controllers
             _context.Films.Add(film);
             await _context.SaveChangesAsync();
 
-            return Ok(film);
+            return Ok(ApiResponse<object>.SuccessResponse(film,"Film başarıyla eklendi."));
         }
         [HttpPost("{id}/favorite")]
         public async Task<IActionResult> AddToFavorite(int id)
