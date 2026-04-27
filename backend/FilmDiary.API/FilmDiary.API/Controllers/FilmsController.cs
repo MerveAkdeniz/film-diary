@@ -18,12 +18,17 @@ namespace FilmDiary.API.Controllers
         private readonly AppDbContext _context;
         private readonly IRecommendationService _recommendationService;
         private readonly ILogger<FilmsController> _logger;
-
+      
         public FilmsController(AppDbContext context, IRecommendationService recommendationService, ILogger<FilmsController> logger)
         {
             _context = context;
             _recommendationService = recommendationService;
             _logger = logger;
+        }
+
+        private string GetUsername()
+        {
+            return User.Claims.FirstOrDefault(c => c.Type == "username")?.Value!;
         }
 
         [HttpGet]
@@ -69,14 +74,29 @@ namespace FilmDiary.API.Controllers
 
             return Ok(films);
         }
+        [Authorize]
         [HttpGet("favorites")]
         public async Task<IActionResult> GetFavorites()
         {
+            var username = GetUsername();
+
+            if (string.IsNullOrEmpty(username))
+                return Unauthorized();
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
+            if (user == null)
+                return Unauthorized();
+
             var films = await _context.Films
-                .Where(f => f.IsFavorite)
+                .Where(f => f.IsFavorite && f.UserId == user.Id)
                 .ToListAsync();
 
-            return Ok(films);
+            return Ok(ApiResponse<object>.SuccessResponse(
+                films,
+                "Favori filmler getirildi."
+            ));
         }
         [HttpGet("by-actor")]
         public async Task<IActionResult> GetFilmsByActor(string actorName)
@@ -255,11 +275,28 @@ namespace FilmDiary.API.Controllers
             if (film == null)
                 return NotFound("Film bulunamadı.");
 
+            var username = GetUsername();
+
+            if (string.IsNullOrEmpty(username))
+                return Unauthorized();
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
+            if (user == null)
+                return Unauthorized();
+
             film.IsFavorite = true;
+            film.UserId = user.Id;
+
             await _context.SaveChangesAsync();
 
-            return Ok("Film favorilere eklendi.");
+            return Ok(ApiResponse<object>.SuccessResponse(
+                null,
+                "Film favorilere eklendi."
+            ));
         }
+        [Authorize]
         [HttpPost("{id}/unfavorite")]
         public async Task<IActionResult> RemoveFromFavorite(int id)
         {
@@ -268,10 +305,26 @@ namespace FilmDiary.API.Controllers
             if (film == null)
                 return NotFound("Film bulunamadı.");
 
+            var username = GetUsername();
+
+            if (string.IsNullOrEmpty(username))
+                return Unauthorized();
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
+            if (user == null)
+                return Unauthorized();
+
             film.IsFavorite = false;
+            film.UserId = null;
+
             await _context.SaveChangesAsync();
 
-            return Ok("Film favorilerden çıkarıldı.");
+            return Ok(ApiResponse<object>.SuccessResponse(
+                null,
+                "Film favorilerden çıkarıldı."
+            ));
         }
         [HttpPost("{filmId}/actors/{actorId}")]
         public async Task<IActionResult> AddActorToFilm(int filmId, int actorId)
