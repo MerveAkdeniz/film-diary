@@ -4,6 +4,7 @@ using FilmDiary.API.DTOs;
 using FilmDiary.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -48,13 +49,58 @@ namespace FilmDiary.API.Controllers
                 "Kullanıcı başarıyla oluşturuldu."
             ));
         }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto dto)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == dto.UserName);
 
+            if (user == null)
+                return BadRequest(ApiResponse<object>.ErrorResponse("Kullanıcı bulunamadı."));
+
+            var passwordHash = HashPassword(dto.Password);
+
+            if (user.PasswordHash != passwordHash)
+                return BadRequest(ApiResponse<object>.ErrorResponse("Şifre yanlış."));
+
+            var token = CreateToken(user);
+
+            return Ok(ApiResponse<object>.SuccessResponse(token, "Giriş başarılı."));
+        }
         private string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(password);
             var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
+        }
+        private string CreateToken(User user)
+        {
+            var jwtSettings = HttpContext.RequestServices
+                .GetRequiredService<IConfiguration>()
+                .GetSection("Jwt");
+
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings["Key"])
+            );
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+        new System.Security.Claims.Claim("username", user.UserName)
+    };
+
+            var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(2),
+                signingCredentials: creds
+            );
+
+            return new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler()
+                .WriteToken(token);
         }
     }
 }
