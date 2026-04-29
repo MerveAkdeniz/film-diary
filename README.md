@@ -23,6 +23,12 @@ Film Diary API is a comprehensive backend service engineered to solve these prob
 
 ## 🌟 Core Features & Technical Highlights
 
+### 🔐 Authentication & Authorization
+* Secure JWT-based authentication system.
+* User registration and login endpoints.
+* Protected routes using role-based authorization.
+* Ensures user-specific data isolation (e.g., favorites per user).
+
 ### 🎭 Actor-Based Discovery
 Moving beyond standard title and genre searches, the API allows users to:
 * Fetch the entire filmography of a specific actor.
@@ -33,9 +39,10 @@ A highly flexible search endpoint designed to handle complex queries:
 * Filter by genre, rating, release status, or user favorites.
 * Combine multiple query parameters dynamically in a single API request for granular results.
 
-### ⭐ Favorite System
-* Users can define their curated lists by marking or unmarking favorite movies.
-* Favorites act as the foundational dataset for the recommendation engine ecosystem.
+### ⭐ User-Based Favorite System
+* Each user maintains an independent favorite list.
+* Favorites are securely linked to authenticated users via JWT identity mapping.
+* Forms the backbone of the personalized recommendation engine.
 
 ### 💬 Intelligent Comment System
 * Add structured comments to movies.
@@ -46,7 +53,7 @@ A highly flexible search endpoint designed to handle complex queries:
 * **Explainable AI approach**: Provides transparency on *why* a specific movie is being recommended.
 
 ### 📦 Bulk Data Processing (CSV)
-* Efficiently seeds and imports large movie datasets through a robust CSV import pipeline utilizing the `CsvHelper` library.
+* Efficiently supports importing large movie datasets via CSV using the `CsvHelper` library.
 
 ---
 
@@ -55,10 +62,15 @@ A highly flexible search endpoint designed to handle complex queries:
 Built with modern backend development best practices, ensuring scalability, maintainability, and top-tier performance.
 
 * **Framework**: ASP.NET Core Web API
+* **Authentication**: JWT (JSON Web Token)
 * **ORM & Database**: Entity Framework Core (Code-First Approach), Microsoft SQL Server
 * **Data Parsing**: `CsvHelper` for bulk data ingestion and processing
 * **Documentation**: Swagger / OpenAPI integration for interactive API testing
 * **Architecture Principles**: DTO (Data Transfer Object) implementations, strict validation rules, and RESTful design principles.
+
+### 🧱 Architecture Overview
+* Layered architecture design: Controllers → Services → Data (DbContext)
+* Separation of concerns ensures maintainability and scalability.
 
 ---
 
@@ -71,6 +83,10 @@ Built with modern backend development best practices, ensuring scalability, main
 | `GET`  | `/api/Films/recommendations`| Retrieves tailored movie suggestions |
 | `GET`  | `/api/Comments/film/{id}`   | Fetches spoiler-managed comments for a specific movie |
 | `POST` | `/api/Films/import`         | Bulk processes movie data from CSV records |
+
+### 📷 API Documentation
+* Swagger UI available for interactive testing.
+* *(Deployed version may be temporarily unavailable due to free-tier cold start on Render)*
 
 ---
 
@@ -118,6 +134,11 @@ This system significantly enhances the content discovery lifecycle. By combining
 ## 📡 Project Status
 
 **Backend feature-complete (v1)**. The API is thoroughly tested via Swagger and fully ready for frontend UI consumption.
+
+---
+
+## 💼 Resume Highlight
+*Designed and implemented a scalable multi-user backend system with JWT-based authentication, user-specific data isolation, and dynamic recommendation logic.*
 
 ---
 *Developed by [Merve AKDENİZ](https://github.com/MerveAkdeniz)*
